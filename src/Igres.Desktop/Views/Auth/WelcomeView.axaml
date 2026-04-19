@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Auth"
+             xmlns:svc="clr-namespace:Igres.Desktop.Services"
+             x:Class="Igres.Desktop.Views.Auth.WelcomeView"
+             x:DataType="vm:WelcomeViewModel">
+    <Grid RowDefinitions="*,Auto,*">
+        <Border Grid.Row="1"
+                Width="500"
+                Padding="36,32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Classes="card section-card">
+            <StackPanel Spacing="18">
+                <Border Classes="chip accent" HorizontalAlignment="Left">
+                    <TextBlock Classes="chip-text" Text="IGRes desktop" />
+                </Border>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="h1" Text="Sign in to Instagram" />
+                    <TextBlock Classes="body"
+                               TextWrapping="Wrap"
+                               Text="Enter your Instagram username and password. This is a live sign-in against Instagram's mobile API. Your credentials talk directly to i.instagram.com and the returned session is stored only in your OS keychain." />
+                </StackPanel>
+
+                <Border Classes="chip">
+                    <TextBlock Classes="chip-text"
+                               TextWrapping="Wrap"
+                               Text="If Instagram issues a checkpoint, open the official app on your phone, resolve the prompt there, then retry." />
+                </Border>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="caption" Text="USERNAME" />
+                    <TextBox Watermark="Instagram username" Text="{Binding Identifier, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="caption" Text="PASSWORD" />
+                    <TextBox Watermark="Instagram password" PasswordChar="*" Text="{Binding Secret, Mode=TwoWay}" />
+                </StackPanel>
+
+                <TextBlock Classes="subtle" Text="{Binding HelperHint}" TextWrapping="Wrap" />
+
+                <Border Classes="chip destructive"
+                        IsVisible="{Binding ErrorMessage, Converter={x:Static svc:NotNullConverter.Instance}}">
+                    <TextBlock Classes="chip-text" Text="{Binding ErrorMessage}" TextWrapping="Wrap" />
+                </Border>
+
+                <Button Classes="primary"
+                        HorizontalAlignment="Stretch"
+                        Content="Continue"
+                        Command="{Binding SignInCommand}"
+                        IsEnabled="{Binding !IsSigningIn}" />
+
+                <TextBlock HorizontalAlignment="Center"
+                           Classes="subtle"
+                           Text="By continuing, you confirm this account belongs to you." />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

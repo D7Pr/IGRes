@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Igres.Infrastructure</RootNamespace>
+    <AssemblyName>IGRes.Infrastructure</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Igres.Core\Igres.Core.csproj" />
+  </ItemGroup>
+</Project>

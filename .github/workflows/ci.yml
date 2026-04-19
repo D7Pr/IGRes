@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 001-account-cleaner
+      - "codex/**"
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.202
+
+      - name: Restore
+        run: dotnet restore IGRes.sln
+
+      - name: Build
+        run: dotnet build IGRes.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test IGRes.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: "**/*.trx"
+          if-no-files-found: ignore
+
+  publish-smoke:
+    runs-on: windows-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.202
+
+      - name: Publish desktop app
+        run: dotnet publish src/Igres.Desktop/Igres.Desktop.csproj --configuration Release --runtime win-x64 --self-contained false -o artifacts/publish/win-x64
+
+      - name: Upload publish output
+        uses: actions/upload-artifact@v4
+        with:
+          name: igres-publish-win-x64
+          path: artifacts/publish/win-x64

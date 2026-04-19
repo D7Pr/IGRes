@@ -1,0 +1,162 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Settings"
+             xmlns:svc="clr-namespace:Igres.Desktop.Services"
+             x:Class="Igres.Desktop.Views.Settings.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <ScrollViewer>
+        <StackPanel Spacing="18" Margin="40,28,40,28" MaxWidth="720" HorizontalAlignment="Left">
+            <StackPanel Spacing="6">
+                <TextBlock Classes="h1" Text="Settings" />
+                <TextBlock Classes="body" Text="Appearance, paging, accessibility and local session controls. Local app data is stored beside the executable in the user-data folder." />
+            </StackPanel>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Appearance" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Theme" Width="160" VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding Theme, Mode=TwoWay}" MinWidth="220" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Reduced motion" Width="160" VerticalAlignment="Center" />
+                        <ToggleSwitch IsChecked="{Binding ReducedMotion, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Performance" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Page size" Width="160" VerticalAlignment="Center" />
+                        <Border Classes="input-shell" Width="160">
+                            <NumericUpDown Classes="embedded-stepper"
+                                           Minimum="10"
+                                           Maximum="200"
+                                           Increment="10"
+                                           Value="{Binding PageSize, Mode=TwoWay}"
+                                           Width="160" />
+                        </Border>
+                        <TextBlock Classes="subtle" VerticalAlignment="Center" Text="Items loaded per request" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Parallel actions" Width="160" VerticalAlignment="Center" />
+                        <Border Classes="input-shell" Width="160">
+                            <NumericUpDown Classes="embedded-stepper"
+                                           Minimum="1"
+                                           Maximum="10"
+                                           Increment="1"
+                                           Value="{Binding MaxConcurrency, Mode=TwoWay}"
+                                           Width="160" />
+                        </Border>
+                        <TextBlock Classes="subtle" VerticalAlignment="Center" Text="Concurrent delete batches" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Updates" />
+                    <TextBlock Classes="body"
+                               TextWrapping="Wrap"
+                               Text="IGRes can check GitHub releases for new portable builds and install them on restart." />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Current version" Width="160" VerticalAlignment="Center" />
+                        <TextBlock Classes="subtle" Text="{Binding CurrentVersion}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Auto-check for updates" Width="160" VerticalAlignment="Center" />
+                        <ToggleSwitch IsChecked="{Binding AutoCheckForUpdates, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Button Classes="primary"
+                                Content="Check now"
+                                Command="{Binding CheckForUpdatesCommand}" />
+                        <Button Classes="primary"
+                                Content="Install update"
+                                IsEnabled="{Binding CanInstallUpdate}"
+                                Command="{Binding InstallUpdateCommand}" />
+                        <Button Content="Open releases" Command="{Binding OpenUpdatePageCommand}" />
+                    </StackPanel>
+                    <TextBlock Classes="subtle"
+                               Text="{Binding UpdatePublishedAt}"
+                               IsVisible="{Binding UpdatePublishedAt, Converter={x:Static svc:NotNullConverter.Instance}}" />
+                    <TextBlock Classes="subtle"
+                               TextWrapping="Wrap"
+                               Text="{Binding UpdateStatus}"
+                               IsVisible="{Binding UpdateStatus, Converter={x:Static svc:NotNullConverter.Instance}}" />
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Diagnostics" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Show diagnostics" Width="160" VerticalAlignment="Center" />
+                        <ToggleSwitch IsChecked="{Binding ShowDiagnostics, Mode=TwoWay}" />
+                    </StackPanel>
+                    <TextBlock Classes="subtle"
+                               TextWrapping="Wrap"
+                               Text="Local-only diagnostics. No telemetry is sent off the device. Log output is redacted for tokens, cookies, and auth headers." />
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Instagram session" />
+                    <TextBlock Classes="body"
+                               TextWrapping="Wrap"
+                               Text="Signing in fills these headers automatically. You can also paste a full request header block captured from the Instagram mobile app to use that session on this device. Headers stay encrypted locally in the user-data folder." />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="body" Text="Use captured session" Width="200" VerticalAlignment="Center" />
+                        <ToggleSwitch IsChecked="{Binding UseCapturedCredentials, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <TextBlock Classes="subtle"
+                               Text="{Binding CapturedSummary}"
+                               IsVisible="{Binding CapturedSummary, Converter={x:Static svc:NotNullConverter.Instance}}" />
+
+                    <TextBox AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas,Menlo,monospace"
+                             MinHeight="140"
+                             MaxHeight="260"
+                             Watermark="Paste the full request block (headers section, one 'Key: value' per line)."
+                             Text="{Binding PastedRequest, Mode=TwoWay}" />
+
+                    <TextBlock Classes="destructive"
+                               TextWrapping="Wrap"
+                               Text="{Binding CapturedError}"
+                               IsVisible="{Binding CapturedError, Converter={x:Static svc:NotNullConverter.Instance}}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Classes="primary" Content="Save captured headers" Command="{Binding SaveCapturedCommand}" />
+                        <Button Classes="destructive"
+                                Content="Clear captured headers"
+                                IsEnabled="{Binding HasCapturedSession}"
+                                Command="{Binding ClearCapturedCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card section-card" Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="Session" />
+                    <TextBlock Classes="body"
+                               TextWrapping="Wrap"
+                               Text="Signing out returns you to the welcome screen. Clearing local app data wipes the saved session, captured headers, preferences, and queued job history from this installation only." />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Classes="primary" Content="Sign out" Command="{Binding SignOutCommand}" />
+                        <Button Classes="destructive" Content="Clear all local data" Command="{Binding ClearSessionCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Classes="subtle"
+                       Text="{Binding Status}"
+                       IsVisible="{Binding Status, Converter={x:Static svc:NotNullConverter.Instance}}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

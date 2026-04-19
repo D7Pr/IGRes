@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Igres.Desktop.Services"
+        x:Class="Igres.Desktop.Views.Dialogs.ConfirmationDialog"
+        x:DataType="vm:ConfirmationDialogViewModel"
+        Width="440"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="BorderOnly"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur">
+    <Border Classes="dialog" Padding="24" CornerRadius="14" Background="{DynamicResource SurfaceCardBrush}" BorderBrush="{DynamicResource SurfaceBorderBrush}" BorderThickness="1">
+        <StackPanel Spacing="14">
+            <TextBlock Classes="h2" Text="{Binding Request.Title}" />
+            <TextBlock Classes="body" TextWrapping="Wrap" Text="{Binding Request.Message}" />
+            <Border Classes="chip"
+                    IsVisible="{Binding Request.AffectedCount, Converter={x:Static vm:PositiveIntConverter.Instance}}">
+                <TextBlock Classes="chip-text">
+                    <Run Text="Affects " />
+                    <Run Text="{Binding Request.AffectedCount}" FontWeight="SemiBold" />
+                    <Run Text=" item(s)" />
+                </TextBlock>
+            </Border>
+            <StackPanel IsVisible="{Binding RequiresTypedConfirmation}" Spacing="6">
+                <TextBlock Classes="caption">
+                    <Run Text="Type " />
+                    <Run Text="{Binding Request.TypedConfirmationText}" FontWeight="SemiBold" />
+                    <Run Text=" to confirm" />
+                </TextBlock>
+                <TextBox Text="{Binding TypedValue, Mode=TwoWay}" Watermark="{Binding Request.TypedConfirmationText}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,6,0,0">
+                <Button Classes="ghost" Content="{Binding Request.CancelLabel}" Click="OnCancelClick" />
+                <Button Classes="destructive" Content="{Binding Request.ConfirmLabel}" IsEnabled="{Binding CanConfirm}" Click="OnConfirmClick" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

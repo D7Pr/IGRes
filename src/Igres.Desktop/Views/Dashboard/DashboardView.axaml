@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="clr-namespace:Igres.Desktop.Services"
+             xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Dashboard"
+             x:Class="Igres.Desktop.Views.Dashboard.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+    <ScrollViewer>
+        <StackPanel Margin="40,36,40,40" Spacing="24">
+            <Border Classes="card section-card" Padding="28">
+                <StackPanel Spacing="10">
+                    <Border Classes="chip accent" HorizontalAlignment="Left">
+                        <TextBlock Classes="chip-text" Text="Ready for review" />
+                    </Border>
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="h1" Text="Overview" />
+                        <TextBlock Classes="body" Text="A clean summary of your account footprint. Pick any section on the left to review, preview, select, and clean up with full job tracking." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Classes="card" Padding="28" IsVisible="{Binding IsLoading}">
+                <StackPanel Spacing="12" HorizontalAlignment="Center">
+                    <ProgressBar Width="220" IsIndeterminate="True" />
+                    <TextBlock Classes="body" HorizontalAlignment="Center" Text="Loading account totals..." />
+                </StackPanel>
+            </Border>
+            <Border Classes="card" Padding="28" IsVisible="{Binding ErrorMessage, Converter={x:Static svc:NotNullConverter.Instance}}">
+                <StackPanel Spacing="10" MaxWidth="520">
+                    <TextBlock Classes="h2 unsupported" Text="Overview unavailable" />
+                    <TextBlock Classes="body" Text="{Binding ErrorMessage}" TextWrapping="Wrap" />
+                    <TextBlock Classes="subtle" Text="Refresh the current section after checking your session in Settings." />
+                </StackPanel>
+            </Border>
+            <ItemsControl ItemsSource="{Binding Summaries}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:SurfaceSummary">
+                        <Border Classes="card" Margin="0,0,16,16" Width="260" Padding="20">
+                            <StackPanel Spacing="10">
+                                <TextBlock Classes="caption" Text="{Binding Label}" />
+                                <TextBlock Classes="h1" FontSize="34" Text="{Binding CountLabel}" />
+                                <Border Classes="chip">
+                                    <TextBlock Classes="chip-text" Text="{Binding CapabilityLabel}" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="subtle"
+                       IsVisible="{Binding Summaries.Count, Converter={x:Static svc:PositiveIntConverter.Instance}}"
+                       Text="Numbers are based on items currently visible to the provider." />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.Desktop", "src\Igres.Desktop\Igres.Desktop.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA111111111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.Core", "src\Igres.Core\Igres.Core.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA222222222}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.Infrastructure", "src\Igres.Infrastructure\Igres.Infrastructure.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA333333333}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.Core.Tests", "tests\Igres.Core.Tests\Igres.Core.Tests.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA444444444}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.Desktop.Tests", "tests\Igres.Desktop.Tests\Igres.Desktop.Tests.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA555555555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGRes.IntegrationTests", "tests\Igres.IntegrationTests\Igres.IntegrationTests.csproj", "{E2F28A1C-0D28-4A7D-9A5F-AAA666666666}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E2F28A1C-0D28-4A7D-9A5F-AAA111111111}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA111111111}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA111111111}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA111111111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA222222222}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA222222222}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA222222222}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA222222222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA333333333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA333333333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA333333333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA333333333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA444444444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA444444444}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA444444444}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA444444444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA555555555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA555555555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA555555555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA555555555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA666666666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA666666666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA666666666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F28A1C-0D28-4A7D-9A5F-AAA666666666}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

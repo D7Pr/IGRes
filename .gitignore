@@ -1,0 +1,41 @@
+# Build outputs
+bin/
+obj/
+artifacts/
+TestResults/
+
+# IDE and local tooling
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.rsuser
+
+# Codex / local agent state
+.claude/
+.agents/
+.specify/
+specs/
+AGENTS.md
+
+# Local app data and diagnostics
+user-data/
+startup.log
+dump-*.txt
+captured.bin
+session.bin
+preferences.json
+
+# Publish/export folders
+publish-out-*/
+publish-out*
+runtimes/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Misc local scratch files
+new 1.txt

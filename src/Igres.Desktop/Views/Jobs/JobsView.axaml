@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Jobs"
+             xmlns:svc="clr-namespace:Igres.Desktop.Services"
+             x:Class="Igres.Desktop.Views.Jobs.JobsView"
+             x:DataType="vm:JobsViewModel">
+    <DockPanel LastChildFill="True">
+        <Border DockPanel.Dock="Top" Padding="40,28,40,16">
+            <StackPanel Spacing="6">
+                <TextBlock Classes="h1" Text="Jobs" />
+                <TextBlock Classes="body" Text="Live view of bulk actions. Cancel in-flight jobs; inspect per-item outcomes." />
+            </StackPanel>
+        </Border>
+        <Grid ColumnDefinitions="360,*" Margin="40,0,40,24">
+            <Border Classes="card" Padding="0" Margin="0,0,16,0">
+                <ListBox ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
+                         Background="Transparent" BorderThickness="0" Padding="6">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="vm:JobRowViewModel">
+                            <StackPanel Spacing="6" Margin="8,8,8,10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Text="{Binding Label}" Classes="h3" />
+                                    <Border Grid.Column="1" Classes="chip"
+                                            Background="{Binding Status, Converter={x:Static svc:JobStatusBrushConverter.Instance}}">
+                                        <TextBlock Classes="chip-text" Text="{Binding StatusLabel}" />
+                                    </Border>
+                                </Grid>
+                                <TextBlock Classes="subtle" Text="{Binding Surface}" />
+                                <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent}" Height="6" />
+                                <TextBlock Classes="caption">
+                                    <Run Text="{Binding Processed}" />
+                                    <Run Text="/" />
+                                    <Run Text="{Binding Total}" />
+                                    <Run Text="   ok:" />
+                                    <Run Text="{Binding Succeeded}" />
+                                    <Run Text="  fail:" />
+                                    <Run Text="{Binding Failed}" />
+                                    <Run Text="  skip:" />
+                                    <Run Text="{Binding Skipped}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+            <Border Grid.Column="1" Classes="card" Padding="24" IsVisible="{Binding SelectedJob, Converter={x:Static svc:NotNullConverter.Instance}}">
+                <DockPanel LastChildFill="True">
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="h2" Text="{Binding SelectedJob.Label}" />
+                            <TextBlock Classes="subtle" Text="{Binding SelectedJob.Timing}" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="destructive" Content="Cancel"
+                                IsEnabled="{Binding SelectedJob.CanCancel}"
+                                Command="{Binding CancelCommand}"
+                                CommandParameter="{Binding SelectedJob}" />
+                    </Grid>
+                    <ProgressBar DockPanel.Dock="Top" Minimum="0" Maximum="100"
+                                 Value="{Binding SelectedJob.ProgressPercent}" Height="8" Margin="0,0,0,14" />
+                    <TextBlock DockPanel.Dock="Top" Classes="body" Margin="0,0,0,10">
+                        <Run Text="Processed " />
+                        <Run Text="{Binding SelectedJob.Processed}" FontWeight="SemiBold" />
+                        <Run Text=" of " />
+                        <Run Text="{Binding SelectedJob.Total}" FontWeight="SemiBold" />
+                        <Run Text="   —   " />
+                        <Run Text="ok " /><Run Text="{Binding SelectedJob.Succeeded}" FontWeight="SemiBold" />
+                        <Run Text="  fail " /><Run Text="{Binding SelectedJob.Failed}" FontWeight="SemiBold" />
+                        <Run Text="  skip " /><Run Text="{Binding SelectedJob.Skipped}" FontWeight="SemiBold" />
+                        <Run Text="  canceled " /><Run Text="{Binding SelectedJob.Canceled}" FontWeight="SemiBold" />
+                    </TextBlock>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding SelectedJob.Results}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10,8" Margin="0,0,0,6" CornerRadius="8"
+                                            Background="{DynamicResource SurfaceRaisedBrush}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Text="{Binding Outcome}" Classes="caption" Margin="0,0,10,0" />
+                                            <TextBlock Grid.Column="1" Text="{Binding TargetId}" TextTrimming="CharacterEllipsis" Margin="0,0,10,0" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Message}" Classes="subtle" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+            <Border Grid.Column="1" Classes="card" Padding="24" IsVisible="{Binding SelectedJob, Converter={x:Static svc:IsNullConverter.Instance}}">
+                <StackPanel Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Classes="h2" Text="Select a job" />
+                    <TextBlock Classes="body" Text="Pick a job on the left to see live progress and per-item outcomes." />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</UserControl>

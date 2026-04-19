@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Auth"
+             xmlns:svc="clr-namespace:Igres.Desktop.Services"
+             x:Class="Igres.Desktop.Views.Auth.VerificationCodeView"
+             x:DataType="vm:VerificationCodeViewModel">
+    <Grid RowDefinitions="*,Auto,*">
+        <Border Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="440" Padding="36,32" Classes="card">
+            <StackPanel Spacing="18">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="h2" Text="Enter 2FA code" />
+                    <TextBlock Classes="body" TextWrapping="Wrap">
+                        <Run Text="Instagram requires a second factor. Enter the 6-digit code from your authenticator app, or the SMS code sent to " />
+                        <Run Text="{Binding DestinationHint}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+                        <Run Text="." />
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="caption" Text="CODE" />
+                    <TextBox Watermark="6-digit code" Text="{Binding Code, Mode=TwoWay}" FontSize="18" LetterSpacing="3" />
+                </StackPanel>
+                <Border Classes="chip destructive"
+                        IsVisible="{Binding ErrorMessage, Converter={x:Static svc:NotNullConverter.Instance}}">
+                    <TextBlock Classes="chip-text" Text="{Binding ErrorMessage}" />
+                </Border>
+                <Button Classes="primary" HorizontalAlignment="Stretch" Content="Verify and sign in"
+                        Command="{Binding SubmitCommand}"
+                        IsEnabled="{Binding !IsSubmitting}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                    <Button Classes="ghost" Content="Restart sign-in" Command="{Binding RestartCommand}" IsEnabled="{Binding CanRestart}" />
+                </StackPanel>
+                <TextBlock HorizontalAlignment="Center" Classes="subtle" Text="Codes expire. If it stops working, restart sign-in." TextWrapping="Wrap" TextAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

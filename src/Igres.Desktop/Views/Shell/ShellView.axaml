@@ -1,0 +1,160 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:auth="clr-namespace:Igres.Desktop.Views.Auth"
+        xmlns:avm="clr-namespace:Igres.Desktop.ViewModels.Auth"
+        xmlns:cmt="clr-namespace:Igres.Desktop.Views.Comments"
+        xmlns:dash="clr-namespace:Igres.Desktop.Views.Dashboard"
+        xmlns:jobs="clr-namespace:Igres.Desktop.Views.Jobs"
+        xmlns:lks="clr-namespace:Igres.Desktop.Views.Likes"
+        xmlns:rep="clr-namespace:Igres.Desktop.Views.Reposts"
+        xmlns:sc="clr-namespace:Igres.Desktop.Views.SavedCollections"
+        xmlns:si="clr-namespace:Igres.Desktop.Views.SavedItems"
+        xmlns:settings="clr-namespace:Igres.Desktop.Views.Settings"
+        xmlns:vm="clr-namespace:Igres.Desktop.ViewModels.Shell"
+        x:Class="Igres.Desktop.Views.Shell.ShellView"
+        x:DataType="vm:ShellViewModel"
+        Title="IGRes"
+        Width="1280"
+        Height="820"
+        MinWidth="960"
+        MinHeight="640">
+
+    <Grid>
+        <Grid IsVisible="{Binding !IsSignedIn}">
+            <ContentControl Content="{Binding CurrentContent}">
+                <ContentControl.DataTemplates>
+                    <DataTemplate DataType="avm:WelcomeViewModel">
+                        <auth:WelcomeView />
+                    </DataTemplate>
+                    <DataTemplate DataType="avm:VerificationCodeViewModel">
+                        <auth:VerificationCodeView />
+                    </DataTemplate>
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </Grid>
+
+        <Grid IsVisible="{Binding IsSignedIn}" ColumnDefinitions="260,*">
+            <Border Grid.Column="0" Background="{DynamicResource SurfaceRaisedBrush}" BorderBrush="{DynamicResource SurfaceBorderBrush}" BorderThickness="0,0,1,0">
+                <DockPanel LastChildFill="True">
+                    <Border DockPanel.Dock="Top" Padding="20,22,20,16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="IGRes" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" />
+                            <TextBlock Text="Instagram activity cleaner" Classes="subtle" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border DockPanel.Dock="Top" Padding="16,8,16,16">
+                        <Border Classes="card" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="{Binding Session.DisplayName}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding ProviderLabel}" Classes="subtle" />
+                            </StackPanel>
+                        </Border>
+                    </Border>
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="16,0,16,20" Spacing="10">
+                        <Button Classes="ghost" HorizontalAlignment="Stretch" Content="Sign out" Command="{Binding SignOutCommand}" />
+                        <TextBlock Classes="subtle" Text="Desktop-only. No token replay. No traffic spoofing. Clear capability boundaries." TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding NavItems}" Padding="16,10">
+                            <ItemsControl.Styles>
+                                <Style Selector="Button.nav-shell">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="CornerRadius" Value="{DynamicResource CornerMd}" />
+                                </Style>
+                                <Style Selector="Button.nav-shell:pointerover Border.nav-pill">
+                                    <Setter Property="Background" Value="{DynamicResource SurfaceMutedBrush}" />
+                                </Style>
+                                <Style Selector="Button.nav-shell:pressed Border.nav-pill">
+                                    <Setter Property="Background" Value="{DynamicResource SurfaceMutedBrush}" />
+                                    <Setter Property="Opacity" Value="0.92" />
+                                </Style>
+                                <Style Selector="Button.nav-shell Border.nav-pill">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Style>
+                                <Style Selector="Border.nav-pill.active">
+                                    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+                                </Style>
+                            </ItemsControl.Styles>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:NavItem">
+                                    <Button Classes="nav-shell"
+                                            Margin="0,4"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SelectNavCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Border Classes="nav-pill"
+                                                Classes.active="{Binding IsSelected}">
+                                            <TextBlock Text="{Binding Label}"
+                                                       FontWeight="Medium"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="1">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0"
+                            Margin="28,24,28,0"
+                            Padding="16,14"
+                            Classes="card"
+                            Background="{DynamicResource AccentSoftBrush}"
+                            IsVisible="{Binding Settings.IsUpdateAvailable}">
+                        <DockPanel LastChildFill="False">
+                            <StackPanel DockPanel.Dock="Left" Spacing="4">
+                                <TextBlock Text="{Binding Settings.UpdateBannerText}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" />
+                                <TextBlock Classes="subtle"
+                                           Text="{Binding Settings.UpdatePublishedAt}" />
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10">
+                                <Button Content="Install update"
+                                        Classes="primary"
+                                        Command="{Binding Settings.InstallUpdateCommand}" />
+                                <Button Content="Release notes"
+                                        Command="{Binding Settings.OpenUpdatePageCommand}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <Grid Grid.Row="1">
+                    <Border IsVisible="{Binding IsDashboardActive}">
+                        <dash:DashboardView DataContext="{Binding Dashboard}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsSavedItemsActive}">
+                        <si:SavedItemsView DataContext="{Binding SavedItems}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsSavedCollectionsActive}">
+                        <sc:SavedCollectionsView DataContext="{Binding SavedCollections}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsLikesActive}">
+                        <lks:LikesView DataContext="{Binding Likes}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsCommentsActive}">
+                        <cmt:CommentsView DataContext="{Binding Comments}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsRepostsActive}">
+                        <rep:RepostsView DataContext="{Binding Reposts}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsJobsActive}">
+                        <jobs:JobsView DataContext="{Binding Jobs}" />
+                    </Border>
+                    <Border IsVisible="{Binding IsSettingsActive}">
+                        <settings:SettingsView DataContext="{Binding Settings}" />
+                    </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.202
+
+      - name: Restore
+        run: dotnet restore IGRes.sln
+
+      - name: Build
+        run: dotnet build IGRes.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test IGRes.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish portable Windows build
+        run: dotnet publish src/Igres.Desktop/Igres.Desktop.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false -o artifacts/release/win-x64
+
+      - name: Package release assets
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/release | Out-Null
+          Compress-Archive -Path artifacts/release/win-x64/* -DestinationPath artifacts/release/IGRes-win-x64-portable.zip -Force
+          $hash = (Get-FileHash artifacts/release/IGRes-win-x64-portable.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "IGRes-win-x64-portable.zip sha256=$hash" | Set-Content artifacts/release/SHA256SUMS.txt -Encoding ascii
+
+      - name: Generate release notes
+        shell: pwsh
+        run: |
+          $desktop = [xml](Get-Content src/Igres.Desktop/Igres.Desktop.csproj)
+          $props = [xml](Get-Content Directory.Build.props)
+          $version = $env:GITHUB_REF_NAME
+          $avalonia = ($desktop.Project.ItemGroup.PackageReference | Where-Object { $_.Include -eq 'Avalonia' }).Version
+          $toolkit = ($desktop.Project.ItemGroup.PackageReference | Where-Object { $_.Include -eq 'CommunityToolkit.Mvvm' }).Version
+          $notes = @"
+          # IGRes $version
+
+          ## Version Matrix
+          - App version: $version
+          - Target framework: $($props.Project.PropertyGroup.TargetFramework)
+          - Product: $($props.Project.PropertyGroup.Product)
+          - Avalonia UI: $avalonia
+          - CommunityToolkit.Mvvm: $toolkit
+          - Runtime: win-x64 self-contained portable build
+
+          ## Highlights
+          - Rounded, ship-ready desktop UI polish across navigation, controls, and settings.
+          - Comment previews now use the related post or reel media instead of comment-only placeholders.
+          - Paging, concurrency, diagnostics, and session source stay controllable from Settings.
+          - Built-in update checks can download the latest GitHub release and apply it on restart.
+          - Payload dump files are disabled and cleaned up automatically from user-data.
+
+          ## Assets
+          - IGRes-win-x64-portable.zip
+          - SHA256SUMS.txt
+
+          ## Verification
+          - dotnet build IGRes.sln --configuration Release
+          - dotnet test IGRes.sln --configuration Release
+          - dotnet publish src/Igres.Desktop/Igres.Desktop.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false
+          "@
+          $notes.Trim() | Set-Content artifacts/release/RELEASE_NOTES.md -Encoding utf8
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/release/IGRes-win-x64-portable.zip
+            artifacts/release/SHA256SUMS.txt
+          body_path: artifacts/release/RELEASE_NOTES.md
+          draft: false
+          prerelease: false

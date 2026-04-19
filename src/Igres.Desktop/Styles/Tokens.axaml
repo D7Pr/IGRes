@@ -1,0 +1,64 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="SurfaceBaseColor">#0B0D12</Color>
+            <Color x:Key="SurfaceRaisedColor">#12151C</Color>
+            <Color x:Key="SurfaceCardColor">#161A22</Color>
+            <Color x:Key="SurfaceOverlayColor">#1B2030</Color>
+            <Color x:Key="SurfaceBorderColor">#262B37</Color>
+            <Color x:Key="SurfaceMutedColor">#1D2130</Color>
+            <Color x:Key="TextPrimaryColor">#F2F4F8</Color>
+            <Color x:Key="TextSecondaryColor">#C9CED8</Color>
+            <Color x:Key="TextSubtleColor">#8A93A5</Color>
+            <Color x:Key="AccentColor">#7C9CFF</Color>
+            <Color x:Key="AccentSoftColor">#2A3758</Color>
+            <Color x:Key="AccentPositiveColor">#5ECB9C</Color>
+            <Color x:Key="AccentWarningColor">#E5B55A</Color>
+            <Color x:Key="AccentDestructiveColor">#F26A6A</Color>
+            <Color x:Key="DestructiveSoftColor">#3B1F26</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="SurfaceBaseColor">#F5F6FA</Color>
+            <Color x:Key="SurfaceRaisedColor">#FFFFFF</Color>
+            <Color x:Key="SurfaceCardColor">#FFFFFF</Color>
+            <Color x:Key="SurfaceOverlayColor">#FFFFFF</Color>
+            <Color x:Key="SurfaceBorderColor">#E1E4EC</Color>
+            <Color x:Key="SurfaceMutedColor">#EEF0F6</Color>
+            <Color x:Key="TextPrimaryColor">#11131A</Color>
+            <Color x:Key="TextSecondaryColor">#3C4150</Color>
+            <Color x:Key="TextSubtleColor">#6A7182</Color>
+            <Color x:Key="AccentColor">#4D6CE5</Color>
+            <Color x:Key="AccentSoftColor">#E3E9FF</Color>
+            <Color x:Key="AccentPositiveColor">#2FA37A</Color>
+            <Color x:Key="AccentWarningColor">#B88320</Color>
+            <Color x:Key="AccentDestructiveColor">#C7343A</Color>
+            <Color x:Key="DestructiveSoftColor">#FBE7E8</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <SolidColorBrush x:Key="SurfaceBaseBrush" Color="{DynamicResource SurfaceBaseColor}" />
+    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="{DynamicResource SurfaceRaisedColor}" />
+    <SolidColorBrush x:Key="SurfaceCardBrush" Color="{DynamicResource SurfaceCardColor}" />
+    <SolidColorBrush x:Key="SurfaceOverlayBrush" Color="{DynamicResource SurfaceOverlayColor}" />
+    <SolidColorBrush x:Key="SurfaceBorderBrush" Color="{DynamicResource SurfaceBorderColor}" />
+    <SolidColorBrush x:Key="SurfaceMutedBrush" Color="{DynamicResource SurfaceMutedColor}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource TextSecondaryColor}" />
+    <SolidColorBrush x:Key="TextSubtleBrush" Color="{DynamicResource TextSubtleColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{DynamicResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="AccentPositiveBrush" Color="{DynamicResource AccentPositiveColor}" />
+    <SolidColorBrush x:Key="AccentWarningBrush" Color="{DynamicResource AccentWarningColor}" />
+    <SolidColorBrush x:Key="AccentDestructiveBrush" Color="{DynamicResource AccentDestructiveColor}" />
+    <SolidColorBrush x:Key="DestructiveSoftBrush" Color="{DynamicResource DestructiveSoftColor}" />
+
+    <FontFamily x:Key="InterFontFamily">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+
+    <x:Double x:Key="RadiusLg">22</x:Double>
+    <x:Double x:Key="RadiusMd">18</x:Double>
+    <x:Double x:Key="RadiusSm">14</x:Double>
+    <CornerRadius x:Key="CornerLg">22</CornerRadius>
+    <CornerRadius x:Key="CornerMd">18</CornerRadius>
+    <CornerRadius x:Key="CornerSm">14</CornerRadius>
+</ResourceDictionary>
