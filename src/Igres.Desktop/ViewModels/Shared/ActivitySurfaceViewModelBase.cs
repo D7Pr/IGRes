@@ -139,14 +139,19 @@ public abstract partial class ActivitySurfaceViewModelBase : ViewModelBase
 
     private async Task LoadPageAsync()
     {
-        var page = await FetchAsync(new PageRequest(GetPageSize(), Cursor), CancellationToken.None);
-        foreach (var item in page.Items)
+        var pageSize = GetPageSize();
+        do
         {
-            Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));
-        }
+            var page = await FetchAsync(new PageRequest(pageSize, Cursor), CancellationToken.None);
+            foreach (var item in page.Items)
+            {
+                Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));
+            }
 
-        Cursor = page.NextCursor;
-        HasMore = page.HasMore;
+            Cursor = page.NextCursor;
+            HasMore = page.HasMore;
+        } while (HasMore);
+
         OnPropertyChanged(nameof(IsEmpty));
         RaiseCommandStates();
     }

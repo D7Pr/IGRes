@@ -46,10 +46,17 @@ public sealed partial class CollectionDetailViewModel : ViewModelBase
         {
             Items.Clear();
             SelectedCount = 0;
-            var page = await _provider.GetCollectionItemsAsync(Collection.CollectionId, new PageRequest(GetPageSize()), CancellationToken.None);
-            foreach (var item in page.Items)
+            var pageSize = GetPageSize();
+            string? cursor = null;
+            while (true)
             {
-                Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));
+                var page = await _provider.GetCollectionItemsAsync(Collection.CollectionId, new PageRequest(pageSize, cursor), CancellationToken.None);
+                foreach (var item in page.Items)
+                {
+                    Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));
+                }
+                cursor = page.NextCursor;
+                if (!page.HasMore) break;
             }
         }
         catch (Exception ex)

@@ -78,10 +78,17 @@ public sealed partial class SavedCollectionsViewModel : ViewModelBase
                 HasLoaded = true;
                 return;
             }
-            var page = await _provider.GetSavedCollectionsAsync(new PageRequest(GetPageSize()), CancellationToken.None);
-            foreach (var c in page.Items)
+            var pageSize = GetPageSize();
+            string? cursor = null;
+            while (true)
             {
-                Collections.Add(new SavedCollectionCardViewModel(c));
+                var page = await _provider.GetSavedCollectionsAsync(new PageRequest(pageSize, cursor), CancellationToken.None);
+                foreach (var c in page.Items)
+                {
+                    Collections.Add(new SavedCollectionCardViewModel(c));
+                }
+                cursor = page.NextCursor;
+                if (!page.HasMore) break;
             }
             HasLoaded = true;
             OnPropertyChanged(nameof(IsEmpty));
