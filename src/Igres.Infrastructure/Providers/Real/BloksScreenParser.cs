@@ -34,11 +34,10 @@ public static class BloksScreenParser
         """https:\\/\\/(?:\\\/|[^\s"\\])+""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    // Tries to extract the next-page cursor that Instagram embeds in the Bloks payload.
-    // Covers both the direct \"next_max_id\", \"VALUE\" pattern and the dkc tuple form.
+    // The pagination cursor is embedded inside activity_center_params as "initial_cursor".
+    // After JSON parsing + NormalizePayload the field appears as:  \"initial_cursor\": \"BASE64\"
     private static readonly Regex NextCursorRegex = new(
-        @"\\""next_max_id\\"", \\""(?<cursor>(?:\\[^""]|[^""\\])+)\\"""
-        + @"|\(dkc, \\""next_max_id\\"", \\""(?<cursor2>(?:\\[^""]|[^""\\])+)\\""(?:, |\))",
+        @"\""initial_cursor\"": \""(?<cursor>[A-Za-z0-9+/=_\-]{20,})\""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     private const string RepostContainerMarker = "media_repost_container_non_empty_state";
@@ -439,9 +438,8 @@ public static class BloksScreenParser
     {
         var m = NextCursorRegex.Match(payload);
         if (!m.Success) return null;
-        var raw = m.Groups["cursor"].Success ? m.Groups["cursor"].Value : m.Groups["cursor2"].Value;
-        var decoded = Decode(raw);
-        return string.IsNullOrWhiteSpace(decoded) ? null : decoded;
+        var raw = m.Groups["cursor"].Value;
+        return string.IsNullOrWhiteSpace(raw) ? null : raw;
     }
 
     private static string ShortId(string id) =>

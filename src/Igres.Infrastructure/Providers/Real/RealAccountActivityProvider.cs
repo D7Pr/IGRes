@@ -88,19 +88,25 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
 
     public async Task<PagedResult<ActivityItem>> GetLikesAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Likes, cancellationToken, request.Cursor).ConfigureAwait(false);
+        var data = string.IsNullOrEmpty(request.Cursor)
+            ? await LoadBloksSurfaceAsync(ActivitySurface.Likes, cancellationToken).ConfigureAwait(false)
+            : await LoadNextBloksPageAsync(ActivitySurface.Likes, request.Cursor, cancellationToken).ConfigureAwait(false);
         return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
     public async Task<PagedResult<ActivityItem>> GetCommentsAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Comments, cancellationToken, request.Cursor).ConfigureAwait(false);
+        var data = string.IsNullOrEmpty(request.Cursor)
+            ? await LoadBloksSurfaceAsync(ActivitySurface.Comments, cancellationToken).ConfigureAwait(false)
+            : await LoadNextBloksPageAsync(ActivitySurface.Comments, request.Cursor, cancellationToken).ConfigureAwait(false);
         return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
     public async Task<PagedResult<ActivityItem>> GetRepostsAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Reposts, cancellationToken, request.Cursor).ConfigureAwait(false);
+        var data = string.IsNullOrEmpty(request.Cursor)
+            ? await LoadBloksSurfaceAsync(ActivitySurface.Reposts, cancellationToken).ConfigureAwait(false)
+            : await LoadNextBloksPageAsync(ActivitySurface.Reposts, request.Cursor, cancellationToken).ConfigureAwait(false);
         return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
@@ -164,7 +170,7 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
         return await ExecuteBloksBulkDeleteAsync(itemIds, data.DeleteContext, progress, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<BloksSurfaceData> LoadBloksSurfaceAsync(ActivitySurface surface, CancellationToken cancellationToken, string? cursor = null)
+    private async Task<BloksSurfaceData> LoadBloksSurfaceAsync(ActivitySurface surface, CancellationToken cancellationToken)
     {
         var client = await RequireClientAsync(cancellationToken).ConfigureAwait(false);
         RequireBloksVersion();
@@ -185,8 +191,44 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
             ["bk_client_context"] = DefaultBkClientContext,
         };
 
-        if (!string.IsNullOrEmpty(cursor))
-            payload["next_max_id"] = cursor;
+        var body = await client.PostSignedBodyAsync(path, payload, cancellationToken).ConfigureAwait(false);
+        var referenceTime = DateTimeOffset.UtcNow;
+        return surface switch
+        {
+            ActivitySurface.Likes => BloksScreenParser.ParseLikes(body, referenceTime),
+            ActivitySurface.Comments => BloksScreenParser.ParseComments(body, referenceTime),
+            ActivitySurface.Reposts => BloksScreenParser.ParseReposts(body, referenceTime),
+            _ => throw new UnsupportedCapabilityException($"{surface} is not backed by a Bloks activity-center screen.")
+        };
+    }
+
+    private async Task<BloksSurfaceData> LoadNextBloksPageAsync(ActivitySurface surface, string cursor, CancellationToken cancellationToken)
+    {
+        var client = await RequireClientAsync(cancellationToken).ConfigureAwait(false);
+        RequireBloksVersion();
+
+        // Instagram paginates via a dedicated *_next action rather than re-calling the screen endpoint.
+        // The activity_center_params JSON must include initial_cursor plus the same filter defaults.
+        var path = surface switch
+        {
+            ActivitySurface.Likes => "/api/v1/bloks/apps/com.instagram.privacy.activity_center.liked_next/",
+            ActivitySurface.Comments => "/api/v1/bloks/apps/com.instagram.privacy.activity_center.comments_next/",
+            ActivitySurface.Reposts => "/api/v1/bloks/apps/com.instagram.privacy.activity_center.media_repost_next/",
+            _ => throw new UnsupportedCapabilityException($"{surface} is not backed by a Bloks activity-center screen.")
+        };
+
+        var activityCenterParams = BuildActivityCenterParams(cursor);
+
+        var payload = new Dictionary<string, object?>
+        {
+            ["_uuid"] = CurrentDeviceId(),
+            ["_uid"] = CurrentUserId(),
+            ["bloks_versioning_id"] = CurrentBloksVersionId(),
+            ["bk_client_context"] = DefaultBkClientContext,
+            ["page_size"] = "18",
+            ["cursor"] = cursor,
+            ["activity_center_params"] = activityCenterParams,
+        };
 
         var body = await client.PostSignedBodyAsync(path, payload, cancellationToken).ConfigureAwait(false);
         var referenceTime = DateTimeOffset.UtcNow;
@@ -197,6 +239,41 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
             ActivitySurface.Reposts => BloksScreenParser.ParseReposts(body, referenceTime),
             _ => throw new UnsupportedCapabilityException($"{surface} is not backed by a Bloks activity-center screen.")
         };
+    }
+
+    private static string BuildActivityCenterParams(string cursor)
+    {
+        // Matches the structure Instagram expects for the liked_next/comments_next/media_repost_next
+        // actions, derived from the activity_center_params observed in production Bloks payloads.
+        var obj = new Dictionary<string, object?>
+        {
+            ["py/object"] = "bloks.apps.instagram.privacy.activity_center.data_types.ActivityCenterParams",
+            ["initial_cursor"] = cursor,
+            ["main_order_state_value"] = true,
+            ["main_date_start_state_value"] = -1,
+            ["main_date_end_state_value"] = -1,
+            ["main_filter_to_visible_on_facebook_value"] = false,
+            ["main_includes_location_value"] = false,
+            ["main_liked_privately_value"] = false,
+            ["main_content_type_value"] = 0,
+            ["main_content_types_value"] = "Posts, Reels",
+            ["main_authors_state_value"] = "",
+            ["main_account_history_events_state_value"] = "",
+            ["handlers"] = null,
+            ["items_for_action"] = "",
+            ["number_of_items"] = 0,
+            ["shared_user_id"] = null,
+            ["main_attribute_order_state_value"] = new Dictionary<string, object?>
+            {
+                ["py/reduce"] = new object[]
+                {
+                    new Dictionary<string, string> { ["py/type"] = "bloks.apps.instagram.privacy.activity_center.general_constants.ActivityCenterSortAndFilterConstants" },
+                    new Dictionary<string, string[]> { ["py/tuple"] = new[] { "newest_to_oldest" } }
+                }
+            },
+            ["main_filter_to_visible_from_facebook_value"] = false,
+        };
+        return JsonSerializer.Serialize(obj);
     }
 
     private static void DumpPayload(ActivitySurface surface, string body)
