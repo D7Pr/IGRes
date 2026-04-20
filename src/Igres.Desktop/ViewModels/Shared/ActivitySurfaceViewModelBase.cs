@@ -139,10 +139,12 @@ public abstract partial class ActivitySurfaceViewModelBase : ViewModelBase
 
     private async Task LoadPageAsync()
     {
-        var pageSize = GetPageSize();
+        // Use a large page size so in-memory sliced surfaces (Likes, Comments, Reposts)
+        // return everything in one call rather than re-fetching from Instagram per slice.
+        const int loadAllPageSize = 10_000;
         do
         {
-            var page = await FetchAsync(new PageRequest(pageSize, Cursor), CancellationToken.None);
+            var page = await FetchAsync(new PageRequest(loadAllPageSize, Cursor), CancellationToken.None);
             foreach (var item in page.Items)
             {
                 Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));

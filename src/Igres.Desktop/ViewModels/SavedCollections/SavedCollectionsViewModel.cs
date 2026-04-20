@@ -78,11 +78,10 @@ public sealed partial class SavedCollectionsViewModel : ViewModelBase
                 HasLoaded = true;
                 return;
             }
-            var pageSize = GetPageSize();
             string? cursor = null;
             while (true)
             {
-                var page = await _provider.GetSavedCollectionsAsync(new PageRequest(pageSize, cursor), CancellationToken.None);
+                var page = await _provider.GetSavedCollectionsAsync(new PageRequest(10_000, cursor), CancellationToken.None);
                 foreach (var c in page.Items)
                 {
                     Collections.Add(new SavedCollectionCardViewModel(c));

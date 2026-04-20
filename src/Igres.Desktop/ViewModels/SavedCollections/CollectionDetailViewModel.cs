@@ -46,11 +46,10 @@ public sealed partial class CollectionDetailViewModel : ViewModelBase
         {
             Items.Clear();
             SelectedCount = 0;
-            var pageSize = GetPageSize();
             string? cursor = null;
             while (true)
             {
-                var page = await _provider.GetCollectionItemsAsync(Collection.CollectionId, new PageRequest(pageSize, cursor), CancellationToken.None);
+                var page = await _provider.GetCollectionItemsAsync(Collection.CollectionId, new PageRequest(10_000, cursor), CancellationToken.None);
                 foreach (var item in page.Items)
                 {
                     Items.Add(new ActivityItemViewModel(item, OnItemSelectionChanged));
