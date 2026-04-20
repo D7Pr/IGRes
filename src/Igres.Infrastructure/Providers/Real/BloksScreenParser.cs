@@ -34,6 +34,13 @@ public static class BloksScreenParser
         """https:\\/\\/(?:\\\/|[^\s"\\])+""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    // Tries to extract the next-page cursor that Instagram embeds in the Bloks payload.
+    // Covers both the direct \"next_max_id\", \"VALUE\" pattern and the dkc tuple form.
+    private static readonly Regex NextCursorRegex = new(
+        @"\\""next_max_id\\"", \\""(?<cursor>(?:\\[^""]|[^""\\])+)\\"""
+        + @"|\(dkc, \\""next_max_id\\"", \\""(?<cursor2>(?:\\[^""]|[^""\\])+)\\""(?:, |\))",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+
     private const string RepostContainerMarker = "media_repost_container_non_empty_state";
 
     public static BloksSurfaceData ParseLikes(string body, DateTimeOffset referenceTime)
@@ -84,7 +91,8 @@ public static class BloksScreenParser
         return new BloksSurfaceData(items, ParseDeleteContext(
             payload,
             "com.instagram.privacy.activity_center.liked_unlike",
-            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.liked_unlike/"));
+            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.liked_unlike/"),
+            ParseNextCursor(payload));
     }
 
     public static BloksSurfaceData ParseComments(string body, DateTimeOffset referenceTime)
@@ -141,7 +149,8 @@ public static class BloksScreenParser
         return new BloksSurfaceData(items, ParseDeleteContext(
             payload,
             "com.instagram.privacy.activity_center.comments_delete",
-            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.comments_delete/"));
+            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.comments_delete/"),
+            ParseNextCursor(payload));
     }
 
     public static BloksSurfaceData ParseReposts(string body, DateTimeOffset referenceTime)
@@ -155,7 +164,8 @@ public static class BloksScreenParser
         return new BloksSurfaceData(items, ParseDeleteContext(
             payload,
             "com.instagram.privacy.activity_center.media_repost_delete",
-            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.media_repost_delete/"));
+            "/api/v1/bloks/apps/com.instagram.privacy.activity_center.media_repost_delete/"),
+            ParseNextCursor(payload));
     }
 
     private static List<ActivityItem> ParseStructuredReposts(string section)
@@ -425,6 +435,15 @@ public static class BloksScreenParser
     private static int ParseInt(string value) =>
         int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : 0;
 
+    private static string? ParseNextCursor(string payload)
+    {
+        var m = NextCursorRegex.Match(payload);
+        if (!m.Success) return null;
+        var raw = m.Groups["cursor"].Success ? m.Groups["cursor"].Value : m.Groups["cursor2"].Value;
+        var decoded = Decode(raw);
+        return string.IsNullOrWhiteSpace(decoded) ? null : decoded;
+    }
+
     private static string ShortId(string id) =>
         id.Length <= 8 ? id : id[..8];
 
@@ -450,7 +469,7 @@ public static class BloksScreenParser
     }
 }
 
-public sealed record BloksSurfaceData(IReadOnlyList<ActivityItem> Items, BloksDeleteContext DeleteContext);
+public sealed record BloksSurfaceData(IReadOnlyList<ActivityItem> Items, BloksDeleteContext DeleteContext, string? NextCursor = null);
 
 public sealed record BloksDeleteContext(
     string EndpointPath,

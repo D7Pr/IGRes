@@ -88,20 +88,20 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
 
     public async Task<PagedResult<ActivityItem>> GetLikesAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Likes, cancellationToken).ConfigureAwait(false);
-        return PageInMemory(data.Items, request);
+        var data = await LoadBloksSurfaceAsync(ActivitySurface.Likes, cancellationToken, request.Cursor).ConfigureAwait(false);
+        return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
     public async Task<PagedResult<ActivityItem>> GetCommentsAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Comments, cancellationToken).ConfigureAwait(false);
-        return PageInMemory(data.Items, request);
+        var data = await LoadBloksSurfaceAsync(ActivitySurface.Comments, cancellationToken, request.Cursor).ConfigureAwait(false);
+        return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
     public async Task<PagedResult<ActivityItem>> GetRepostsAsync(PageRequest request, CancellationToken cancellationToken)
     {
-        var data = await LoadBloksSurfaceAsync(ActivitySurface.Reposts, cancellationToken).ConfigureAwait(false);
-        return PageInMemory(data.Items, request);
+        var data = await LoadBloksSurfaceAsync(ActivitySurface.Reposts, cancellationToken, request.Cursor).ConfigureAwait(false);
+        return new PagedResult<ActivityItem>(data.Items, data.NextCursor, data.NextCursor is not null);
     }
 
     public Task<BulkActionResult> RemoveSavedItemsAsync(IReadOnlyList<string> itemIds, IProgress<BulkActionResultItem>? progress, CancellationToken cancellationToken) =>
@@ -159,11 +159,12 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
 
     public async Task<BulkActionResult> RemoveRepostsAsync(IReadOnlyList<string> itemIds, IProgress<BulkActionResultItem>? progress, CancellationToken cancellationToken)
     {
+        // Load only the first page to retrieve DeleteContext — the IDs are already known from the loaded list.
         var data = await LoadBloksSurfaceAsync(ActivitySurface.Reposts, cancellationToken).ConfigureAwait(false);
         return await ExecuteBloksBulkDeleteAsync(itemIds, data.DeleteContext, progress, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<BloksSurfaceData> LoadBloksSurfaceAsync(ActivitySurface surface, CancellationToken cancellationToken)
+    private async Task<BloksSurfaceData> LoadBloksSurfaceAsync(ActivitySurface surface, CancellationToken cancellationToken, string? cursor = null)
     {
         var client = await RequireClientAsync(cancellationToken).ConfigureAwait(false);
         RequireBloksVersion();
@@ -183,6 +184,9 @@ public sealed class RealAccountActivityProvider : IAccountActivityProvider, IDis
             ["bloks_versioning_id"] = CurrentBloksVersionId(),
             ["bk_client_context"] = DefaultBkClientContext,
         };
+
+        if (!string.IsNullOrEmpty(cursor))
+            payload["next_max_id"] = cursor;
 
         var body = await client.PostSignedBodyAsync(path, payload, cancellationToken).ConfigureAwait(false);
         var referenceTime = DateTimeOffset.UtcNow;
